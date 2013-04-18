@@ -37,7 +37,7 @@ function main() {
 			else if($("h1").text().match(/Project2/i)) cs131project2(UIpanel);
 			else if($("h1").text().match(/Project3/i)) cs131project3(UIpanel);
 		} else if($("h1").text().match(/cs433/i)) {
-			if($("h1").text().match(/ /i)) cs433project(UIpanel);
+			if($("h1").text().match(/Project ActuallyP3/i)) cs433project(UIpanel);
 		}
 	}	// END OF FEATURE 2. CHECK CODE STYLES
 
@@ -57,9 +57,9 @@ function main() {
 
 } // MAIN ENDS
 
-function cs433project(UIPanel) {
+function cs433project(UIpanel) {
 	// 1. modify the line below to specify single/multiple section titles to look up
-	var sectionsStudentModified = ["p3_student/PhotoTools.java"];
+	var sectionsStudentModified = ["src/cmsc433_p3/"];
 
 	var tr_codes = _.reduce(sectionsStudentModified, function(memo,sec){
 		var tr_list = $("div.GMYHEHOCNK:contains('"+sec+"')").parent().find("tr");
@@ -70,27 +70,34 @@ function cs433project(UIPanel) {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// RUBRIC 0. FINDING  WORDS
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	var wordsToFind = ["sleep","wait","notify","synchronized","ReentrantLock"];
+	$(UIpanel).append("<h3 style='color:plum'>FINDING WORDS</h3>");
+	$(UIpanel).append("<p>any descriptive text here.</p>");
+	$(UIpanel).append("<p>[WORDS FOUND] <br></p>");
+	var wordsToFind = ["sleep(","wait(","notify(","synchronized(","ReentrantLock"];
 	var wordsFound = [];
 	// iterates each line of code below
 	$.each(tr_codes,function(tri,tr) {
+		console.log(codeText);
 		var codeDiv = $(tr).find("div.gwt-Label")[0];
 		var codeText = $(codeDiv).text();
-		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.match(w); });
+		//console.log(codeText);
+		if(codeText.match(/\/\//i)) return;
+		var wordsFoundInCodeText = _.filter(wordsToFind, function(w) { return codeText.indexOf(w)!=-1; });
 		// if wordsFoundInCodeText=['sleep','wait'], it means the code line contains sleep and wait words. 
 		// let's do some actions (delete unwanted options)
 		// option 1. adding comment button
-		btn_addComment(tr,"button title","predefined comment.","yello");
+		_.each(wordsFoundInCodeText, function(w) {
+			//btn_addComment(tr,"button title",wordsFoundInCodeText[0]+" not allowed.","yellow");
+			$(UIpanel).append(makeLableWithClickToScroll(w,tr));
+		});
 		// option 2. simply adding comment 
-		addCommentOnly(tr,"comment message","green");
+		//addCommentOnly(tr,"comment message","green");
 		// option 3. count or remember something to show in summary UI panel
 		// for example, you can update a list of unique words found so far
-		wordsFound = _.unique(_.union(wordsFound, wordsFoundInCodeText));
+		// wordsFound = _.unique(_.union(wordsFound, wordsFoundInCodeText));
 	});  // end of code line iteration
 	// it's time to show the summary in the UIPanel 
-	$(UIpanel).append("<h3 style='color:plum'>FINDING WORDS</h3>");
-	$(UIpanel).append("<p>any descriptive text here.</p>");
-	$(UIpanel).append("<p>[WORDS FOUND] "+ makeLabels(wordsFound).join(" ")   +"</p>");
+	// $(UIpanel).append("<p>[WORDS FOUND] "+ makeLabels(wordsFound).join(" ")   +"</p>");
 	// END OF RUBRIC 0.
 }
 
@@ -583,6 +590,12 @@ function highlightText(leafDom,s,color) {
 }
 function makeLabels(strList) {
 	return _.map(strList, function(s) { return "<span class='label'>"+ s +"</span>"; });
+}
+function makeLableWithClickToScroll(label,targetEl) {
+	var labelEl = $("<span class='label'>"+label+"</span>").click(function() {
+		paneToScroll.scrollTop($(targetEl).position().top);
+	});
+	return labelEl;
 }
 function makeLabelsWithClick(list) {
 	return _.map(list, function(d) {
